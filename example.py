@@ -1,4 +1,30 @@
 from testbandit import experiment
+from scipy.stats import beta
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_beta( a, b ):
+    x = np.arange (0.0, 1, 0.001)
+    y = beta.pdf(x, a=a, b=b)
+    plt.plot(x,y)
+    plt.show()
+
+def print_summary( variation ):
+    print( "----", variation.name(), "----")
+    print( "Prior alpha:", variation.prior_a() )
+    print( "Prior beta:", variation.prior_b() )
+    print( "Posterior alpha:", variation.posterior_a() )
+    print( "Posterior beta:", variation.posterior_b() )
+    print( "Posterior Mean: %2.3f" % variation.posterior_mean() )
+    print( "Maximum Likelihood Estimate: %2.3f" % variation.maximum_likelihood_estimate() )
+    print( "Probability that conversion rate is less than %2.3f" % variation.value_at_risk_threshold(), "-", variation.value_at_risk() )
+
+    ( lower, upper ) = variation.credible_interval()
+
+    print()
+    print( "Equal tail 95% credible interval" )
+    print( "Lower bound: %2.3f" % lower )
+    print( "Upper bound: %2.3f" % upper )
 
 Variation = experiment.Variation
 Experiment = experiment.Experiment
@@ -71,4 +97,8 @@ print( "Probability of being the winning variation [A, B, C]: ", winning_percent
 
 print( "-=-=-=-=-=-=" )
 print( "Let's look at the details of the winner" )
-winning_variation.print_summary()
+print_summary( winning_variation )
+
+print( "-=-=-=-=-=-=" )
+print( "Let's plot the posterior distribution for the winner" )
+plot_beta( winning_variation.posterior_a(), winning_variation.posterior_b() )

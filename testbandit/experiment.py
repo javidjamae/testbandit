@@ -1,14 +1,7 @@
 from scipy.stats import beta
 import numpy as np
-import matplotlib.pyplot as plt
 
 SAMPLE_COUNT = 200000
-
-def plot_beta( a, b ):
-    x = np.arange (0.0, 1, 0.001)
-    y = beta.pdf(x, a=a, b=b)
-    plt.plot(x,y)
-    plt.show()
 
 class Variation:
     def __init__( self, name, prior_a, prior_b, value_at_risk ):
@@ -45,6 +38,9 @@ class Variation:
     def value_at_risk( self ):
         return self._value_at_risk
 
+    def value_at_risk_threshold( self ):
+        return self._value_at_risk
+
     def name( self ):
         return self._name
 
@@ -79,25 +75,6 @@ class Variation:
         lower = beta.ppf( q=0.025, a=self.posterior_a(), b=self.posterior_b(), loc=0, scale=1 )
         upper = beta.ppf( q=0.975, a=self.posterior_a(), b=self.posterior_b(), loc=0, scale=1 )
         return ( lower, upper )
-
-    def print_summary( self ):
-        print( "----", self.name(), "----")
-        print( "Prior alpha:", self.prior_a() )
-        print( "Prior beta:", self.prior_b() )
-        print( "Posterior alpha:", self.posterior_a() )
-        print( "Posterior beta:", self.posterior_b() )
-        print( "Posterior Mean: %2.3f" % self.posterior_mean() )
-        print( "Maximum Likelihood Estimate: %2.3f" % self.maximum_likelihood_estimate() )
-        print( "Probability that conversion rate is less than %2.3f" % self._value_at_risk_threshold, "-", self._value_at_risk )
-
-        ( lower, upper ) = self.credible_interval()
-
-        print()
-        print( "Equal tail 95% credible interval" )
-        print( "Lower bound: %2.3f" % lower )
-        print( "Upper bound: %2.3f" % upper )
-
-        plot_beta( self.posterior_a(), self.posterior_b() )
 
     def sample_from_posterior( self, count = SAMPLE_COUNT ):
         if ( self._posterior_a == 0 and self._posterior_b == 0 ):
